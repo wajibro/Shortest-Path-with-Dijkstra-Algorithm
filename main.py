@@ -2,12 +2,10 @@ import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-import shutil
+import numpy as np
 
-# =========================
 # MEMBACA DATA EXCEL
-# =========================
-file_path = "/src/Dataset_Graph_Surabaya-3.xlsx"
+file_path = "src/Dataset_Graph_Surabaya-3.xlsx"
 df = pd.read_excel(file_path)
 
 print("=" * 50)
@@ -15,9 +13,7 @@ print("PREVIEW DATA")
 print("=" * 50)
 print(df.head(10).to_string(index=False))
 
-# =========================
 # MEMBUAT DIRECTED GRAPH
-# =========================
 G = nx.DiGraph()
 
 for _, row in df.iterrows():
@@ -26,9 +22,7 @@ for _, row in df.iterrows():
     jarak  = row['Distance_km']
     G.add_edge(asal, tujuan, weight=jarak)
 
-# =========================
 # INFORMASI GRAPH
-# =========================
 print("\n" + "=" * 50)
 print("INFORMASI GRAPH")
 print("=" * 50)
@@ -39,11 +33,9 @@ print("\nDaftar Lokasi:")
 for i, node in enumerate(sorted(G.nodes()), 1):
     print(f"  {i:2}. {node}")
 
-# =========================
 # DIJKSTRA SHORTEST PATH
-# =========================
-start = "Tunjungan"
-end   = "Terminal Bungurasih"
+start = input("Lokasi awal anda: ")
+end   = input("Tujuan anda: ")
 
 print("\n" + "=" * 50)
 print(f"RUTE TERPENDEK: {start} → {end}")
@@ -68,25 +60,50 @@ except nx.NetworkXNoPath:
 except nx.NodeNotFound as e:
     print(f"Node tidak ditemukan: {e}")
 
-# =========================
+def repulse_nodes(pos, min_dist=1.8, iterations=300):
+    """
+    Iteratif mendorong pasangan node yang jaraknya < min_dist
+    sehingga semua node memiliki jarak minimal min_dist satu sama lain.
+    """
+    nodes   = list(pos.keys())
+    pos_arr = {n: np.array(pos[n], dtype=float) for n in nodes}
+ 
+    for _ in range(iterations):
+        moved = False
+        for i in range(len(nodes)):
+            for j in range(i + 1, len(nodes)):
+                a, b  = nodes[i], nodes[j]
+                delta = pos_arr[a] - pos_arr[b]
+                d     = np.linalg.norm(delta)
+                if d < min_dist:
+                    push      = (min_dist - d) / 2 + 0.01
+                    direction = delta / (d + 1e-9)
+                    pos_arr[a] += direction * push
+                    pos_arr[b] -= direction * push
+                    moved = True
+        if not moved:        # sudah tidak ada yang bertabrakan
+            break
+ 
+    return {n: tuple(pos_arr[n]) for n in nodes}
+
 # VISUALISASI GRAPH
-# =========================
 plt.figure(figsize=(20, 14))
 
 # Layout
 pos = nx.spring_layout(G, k=3.5, iterations=200, seed=42)
+pos = repulse_nodes(pos, min_dist=1.8, iterations=300)
 
 # Warnai node jalur terpendek
 node_colors = []
 for node in G.nodes():
     if node == start:
-        node_colors.append('#e74c3c')      # merah = start
+        node_colors.append("#00ff00")      # merah = start
     elif node == end:
-        node_colors.append('#2ecc71')      # hijau = end
+        node_colors.append("#ff0000")      # hijau = end
     elif node in shortest_path:
-        node_colors.append('#f39c12')      # oranye = jalur
+        node_colors.append('#f0ff00')      # oranye = jalur
     else:
-        node_colors.append('#aed6f1')      # biru muda = biasa
+        node_colors.append('#e3e3e3')      # biru muda = biasa
 
 # Warnai edge jalur terpendek
 path_edges = list(zip(shortest_path[:-1], shortest_path[1:]))
@@ -97,14 +114,12 @@ edge_widths = [3.5 if (u, v) in path_edges else 1.0 for u, v in G.edges()]
 other_edges = [(u, v) for u, v in G.edges() if (u, v) not in path_edges]
 nx.draw_networkx_edges(G, pos, edgelist=other_edges,
                        edge_color='#b0b0b0', width=1.0,
-                       arrows=True, arrowsize=12,
-                       connectionstyle='arc3,rad=0.08')
+                       arrows=True, arrowsize=12)
 
 # Gambar edge jalur terpendek
 nx.draw_networkx_edges(G, pos, edgelist=path_edges,
-                       edge_color='#e74c3c', width=3.5,
-                       arrows=True, arrowsize=20,
-                       connectionstyle='arc3,rad=0.08')
+                       edge_color='#0000ff', width=2,
+                       arrows=True, arrowsize=30)
 
 # Gambar node
 nx.draw_networkx_nodes(G, pos, node_color=node_colors,
@@ -127,10 +142,10 @@ nx.draw_networkx_edge_labels(G, pos, edge_labels=path_edge_labels,
 
 # Legend
 legend_elements = [
-    mpatches.Patch(color='#e74c3c', label=f'Start: {start}'),
-    mpatches.Patch(color='#2ecc71', label=f'End: {end}'),
-    mpatches.Patch(color='#f39c12', label='Jalur Terpendek'),
-    mpatches.Patch(color='#aed6f1', label='Node Lainnya'),
+    mpatches.Patch(color='#00ff00', label=f'Start: {start}'),
+    mpatches.Patch(color='#ff0000', label=f'End: {end}'),
+    mpatches.Patch(color='#f0ff00', label='Jalur Terpendek'),
+    mpatches.Patch(color='#e3e3e3', label='Node Lainnya'),
 ]
 plt.legend(handles=legend_elements, loc='upper left', fontsize=10,
            framealpha=0.9, edgecolor='gray')
@@ -144,5 +159,5 @@ plt.title(
 
 plt.axis('off')
 plt.tight_layout()
-plt.savefig('/home/claude/graph_surabaya.png', dpi=150, bbox_inches='tight')
-print("\nGambar tersimpan.")
+plt.savefig('output.png')
+plt.show()
