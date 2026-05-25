@@ -7,7 +7,7 @@ import shutil
 # =========================
 # MEMBACA DATA EXCEL
 # =========================
-file_path = "/mnt/user-data/uploads/Dataset_Graph_Surabaya-3.xlsx"
+file_path = "/src/Dataset_Graph_Surabaya-3.xlsx"
 df = pd.read_excel(file_path)
 
 print("=" * 50)
