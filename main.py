@@ -13,14 +13,16 @@ print("PREVIEW DATA")
 print("=" * 50)
 print(df.head(10).to_string(index=False))
 
-# MEMBUAT DIRECTED GRAPH
+# MEMBUAT DIRECTED GRAPH (BOLAK-BALIK)
 G = nx.DiGraph()
 
 for _, row in df.iterrows():
-    asal  = row['From']
+    asal   = row['From']
     tujuan = row['To']
     jarak  = row['Distance_km']
+    # Tambahkan edge dua arah
     G.add_edge(asal, tujuan, weight=jarak)
+    G.add_edge(tujuan, asal, weight=jarak)   # <-- arah balik
 
 # INFORMASI GRAPH
 print("\n" + "=" * 50)
@@ -41,6 +43,9 @@ print("\n" + "=" * 50)
 print(f"RUTE TERPENDEK: {start} → {end}")
 print("=" * 50)
 
+shortest_path     = None
+shortest_distance = None
+
 try:
     shortest_path     = nx.dijkstra_path(G, start, end, weight='weight')
     shortest_distance = nx.dijkstra_path_length(G, start, end, weight='weight')
@@ -48,7 +53,7 @@ try:
     print("Rute:")
     for i, node in enumerate(shortest_path):
         if i < len(shortest_path) - 1:
-            w = G[shortest_path[i]][shortest_path[i+1]]['weight']
+            w = G[shortest_path[i]][shortest_path[i + 1]]['weight']
             print(f"  {node}  --({w} km)-->")
         else:
             print(f"  {node}")
@@ -60,6 +65,7 @@ except nx.NetworkXNoPath:
 except nx.NodeNotFound as e:
     print(f"Node tidak ditemukan: {e}")
 
+
 def repulse_nodes(pos, min_dist=1.8, iterations=300):
     """
     Iteratif mendorong pasangan node yang jaraknya < min_dist
@@ -67,7 +73,7 @@ def repulse_nodes(pos, min_dist=1.8, iterations=300):
     """
     nodes   = list(pos.keys())
     pos_arr = {n: np.array(pos[n], dtype=float) for n in nodes}
- 
+
     for _ in range(iterations):
         moved = False
         for i in range(len(nodes)):
@@ -81,10 +87,11 @@ def repulse_nodes(pos, min_dist=1.8, iterations=300):
                     pos_arr[a] += direction * push
                     pos_arr[b] -= direction * push
                     moved = True
-        if not moved:        # sudah tidak ada yang bertabrakan
+        if not moved:
             break
- 
+
     return {n: tuple(pos_arr[n]) for n in nodes}
+
 
 # VISUALISASI GRAPH
 plt.figure(figsize=(20, 14))
@@ -93,71 +100,106 @@ plt.figure(figsize=(20, 14))
 pos = nx.spring_layout(G, k=3.5, iterations=200, seed=42)
 pos = repulse_nodes(pos, min_dist=1.8, iterations=300)
 
-# Warnai node jalur terpendek
+# Warnai node
 node_colors = []
 for node in G.nodes():
     if node == start:
-        node_colors.append("#00ff00")      # merah = start
+        node_colors.append("#00ff00")   # hijau  = start
     elif node == end:
-        node_colors.append("#ff0000")      # hijau = end
-    elif node in shortest_path:
-        node_colors.append('#f0ff00')      # oranye = jalur
+        node_colors.append("#ff0000")   # merah  = end
+    elif shortest_path and node in shortest_path:
+        node_colors.append('#f0ff00')   # kuning = jalur terpendek
     else:
-        node_colors.append('#e3e3e3')      # biru muda = biasa
+        node_colors.append('#e3e3e3')   # abu    = node biasa
 
-# Warnai edge jalur terpendek
-path_edges = list(zip(shortest_path[:-1], shortest_path[1:]))
-edge_colors = ['#e74c3c' if (u, v) in path_edges else '#b0b0b0' for u, v in G.edges()]
-edge_widths = [3.5 if (u, v) in path_edges else 1.0 for u, v in G.edges()]
+# Edge jalur terpendek (dua arah ditampilkan bila ada)
+path_edges = []
+if shortest_path:
+    path_edges = list(zip(shortest_path[:-1], shortest_path[1:]))
 
-# Gambar edge biasa
+# Pisahkan edge biasa dan edge jalur terpendek
 other_edges = [(u, v) for u, v in G.edges() if (u, v) not in path_edges]
-nx.draw_networkx_edges(G, pos, edgelist=other_edges,
-                       edge_color='#b0b0b0', width=1.0,
-                       arrows=True, arrowsize=12)
+
+# Gambar edge biasa — gunakan connectionstyle agar panah bolak-balik tidak tumpang tindih
+nx.draw_networkx_edges(
+    G, pos,
+    edgelist=other_edges,
+    edge_color='#b0b0b0',
+    width=1.0,
+    arrows=True,
+    arrowsize=12,
+    connectionstyle='arc3,rad=0.1',   # lengkungkan sedikit agar A→B dan B→A terlihat
+)
 
 # Gambar edge jalur terpendek
-nx.draw_networkx_edges(G, pos, edgelist=path_edges,
-                       edge_color='#0000ff', width=2,
-                       arrows=True, arrowsize=30)
+if path_edges:
+    nx.draw_networkx_edges(
+        G, pos,
+        edgelist=path_edges,
+        edge_color='#0000ff',
+        width=2.5,
+        arrows=True,
+        arrowsize=30,
+        connectionstyle='arc3,rad=0.1',
+    )
 
 # Gambar node
-nx.draw_networkx_nodes(G, pos, node_color=node_colors,
-                       node_size=1400, alpha=0.95)
+nx.draw_networkx_nodes(G, pos, node_color=node_colors, node_size=1400, alpha=0.95)
 
 # Label node
 nx.draw_networkx_labels(G, pos, font_size=7, font_weight='bold', font_color='#1a1a2e')
 
-# Label bobot edge (hanya jalur terpendek + semua edge)
-all_edge_labels = nx.get_edge_attributes(G, 'weight')
-path_edge_labels = {e: v for e, v in all_edge_labels.items() if e in path_edges}
+# Label bobot edge — tampilkan sekali per pasangan (hindari duplikasi A↔B)
+all_edge_labels  = nx.get_edge_attributes(G, 'weight')
 
-nx.draw_networkx_edge_labels(G, pos, edge_labels=all_edge_labels,
-                              font_size=6, font_color='#555555',
-                              label_pos=0.3)
+# Ambil hanya satu representasi per pasangan tak-berarah untuk label
+seen_pairs       = set()
+dedup_labels     = {}
+for (u, v), w in all_edge_labels.items():
+    pair = frozenset([u, v])
+    if pair not in seen_pairs:
+        dedup_labels[(u, v)] = w
+        seen_pairs.add(pair)
 
-nx.draw_networkx_edge_labels(G, pos, edge_labels=path_edge_labels,
-                              font_size=7, font_color='#c0392b',
-                              font_weight='bold', label_pos=0.3)
+path_edge_labels = {e: v for e, v in dedup_labels.items() if e in path_edges}
+
+nx.draw_networkx_edge_labels(
+    G, pos,
+    edge_labels=dedup_labels,
+    font_size=6,
+    font_color='#555555',
+    label_pos=0.3,
+)
+
+if path_edge_labels:
+    nx.draw_networkx_edge_labels(
+        G, pos,
+        edge_labels=path_edge_labels,
+        font_size=7,
+        font_color='#c0392b',
+        font_weight='bold',
+        label_pos=0.3,
+    )
 
 # Legend
 legend_elements = [
     mpatches.Patch(color='#00ff00', label=f'Start: {start}'),
     mpatches.Patch(color='#ff0000', label=f'End: {end}'),
-    mpatches.Patch(color='#f0ff00', label='Jalur Terpendek'),
+    mpatches.Patch(color='#f0ff00', label='Jalur Terpendek'),   # typo Paatch diperbaiki
     mpatches.Patch(color='#e3e3e3', label='Node Lainnya'),
 ]
 plt.legend(handles=legend_elements, loc='upper left', fontsize=10,
            framealpha=0.9, edgecolor='gray')
 
+title_dist = f"{shortest_distance:.1f} km" if shortest_distance is not None else "N/A"
+title_pts  = len(shortest_path) if shortest_path else 0
 plt.title(
-    f"Directed Graph Rute Surabaya\n"
-    f"Dijkstra: {start} → {end}  |  Total: {shortest_distance:.1f} km  |  "
-    f"{len(shortest_path)} titik",
-    fontsize=14, fontweight='bold', pad=15
+    f"Directed Graph Rute Surabaya (Bolak-Balik)\n"
+    f"Dijkstra: {start} → {end}  |  Total: {title_dist}  |  {title_pts} titik",
+    fontsize=14, fontweight='bold', pad=15,
 )
 
 plt.axis('off')
 plt.tight_layout()
-plt.savefig('output.png')
+plt.savefig('output.png', dpi=150)
 plt.show()
