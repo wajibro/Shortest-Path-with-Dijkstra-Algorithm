@@ -2,10 +2,6 @@
 
 Aplikasi desktop interaktif untuk visualisasi graf rute kota Surabaya dan pencarian jalur terpendek menggunakan algoritma Dijkstra. Dibangun dengan Python, Tkinter, NetworkX, dan Matplotlib.
 
-## 📸 Screenshot
-
-*[Tambahkan screenshot aplikasi di sini]*
-
 ## ✨ Fitur
 
 - 📊 **Visualisasi Graf Interaktif** - Menampilkan node (titik) dan edge (rute) dengan bobot jarak (km)
