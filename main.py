@@ -39,12 +39,7 @@ FILE_PATH = "src/Dataset_Graph_Surabaya-3.xlsx"
 try:
     df = pd.read_excel(FILE_PATH)
 except FileNotFoundError:
-    # Demo data bila file tidak ditemukan
-    df = pd.DataFrame({
-        'From':        ['A','A','B','C','D','E','B','D'],
-        'To':          ['B','C','C','D','E','F','D','F'],
-        'Distance_km': [ 3,  7,  2,  4,  1,  5,  6,  2],
-    })
+    print("error: data excel tidak ditemukan")
 
 G = nx.DiGraph()
 for _, row in df.iterrows():
@@ -357,6 +352,7 @@ class App(tk.Tk):
             messagebox.showwarning("Sama", "Lokasi awal dan tujuan tidak boleh sama.")
             return
 
+        # Algoritma Dijkstra
         try:
             sp = nx.dijkstra_path(G, start, end, weight='weight')
             sd = nx.dijkstra_path_length(G, start, end, weight='weight')
