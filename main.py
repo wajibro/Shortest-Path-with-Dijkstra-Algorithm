@@ -216,7 +216,7 @@ class App(tk.Tk):
 
         # Judul panel
         tk.Label(
-            panel, text="🗺 Panel Navigasi", bg=BG_PANEL, fg=ACCENT,
+            panel, text="Panel Navigasi", bg=BG_PANEL, fg=ACCENT,
             font=("Courier New", 10, "bold"), pady=18,
         ).grid(row=0, column=0, sticky="ew")
 
