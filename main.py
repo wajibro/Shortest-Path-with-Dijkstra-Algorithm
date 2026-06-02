@@ -19,7 +19,7 @@ ACCENT       = "#4f9eff"
 ACCENT2      = "#00e5a0"
 TEXT_PRIMARY = "#e8eaf0"
 TEXT_MUTED   = "#7a7f99"
-BORDER       = "#2e3248"
+BORDER       = "#000000"
 RED          = "#ff5252"
 YELLOW       = "#ffd740"
 GREEN        = "#69ff47"
@@ -30,7 +30,6 @@ NODE_START    = "#00d700"
 NODE_END      = "#ff5252"
 EDGE_DEFAULT  = "#3a3f5c"
 EDGE_PATH     = "#4f9eff"
-
 # ─────────────────────────────────────────────
 #  LOAD DATA & BUILD GRAPH
 # ─────────────────────────────────────────────
@@ -72,8 +71,8 @@ def repulse_nodes(pos, min_dist=1.8, iterations=300):
             break
     return {n: tuple(pos_arr[n]) for n in nodes}
 
-POS = nx.spring_layout(G, k=3.5, iterations=200, seed=42)
-POS = repulse_nodes(POS, min_dist=1.8, iterations=300)
+POS = nx.spring_layout(G, k=3.5, iterations=500, seed=42)
+POS = repulse_nodes(POS, min_dist=1.8, iterations=500)
 
 # ─────────────────────────────────────────────
 #  DRAW GRAPH
@@ -92,16 +91,23 @@ def draw_graph(ax, start=None, end=None, shortest_path=None, shortest_distance=N
     nx.draw_networkx_edges(
         G, POS, ax=ax, edgelist=other_edges,
         edge_color=EDGE_DEFAULT, width=1.0,
-        arrows=True, arrowsize=10,
+        arrows=True, arrowsize=8,
         connectionstyle='arc3,rad=0.12',
     )
 
-    # Edge jalur terpendek
+    # Edge jalur terpendek dengan stroke hitam 
     if path_edges:
         nx.draw_networkx_edges(
             G, POS, ax=ax, edgelist=path_edges,
+            edge_color=BORDER, width=5.0,
+            arrows=True, arrowsize=18,
+            connectionstyle='arc3,rad=0.12',
+        )
+        # Kedua: edge berwarna di atasnya
+        nx.draw_networkx_edges(
+            G, POS, ax=ax, edgelist=path_edges,
             edge_color=EDGE_PATH, width=3.0,
-            arrows=True, arrowsize=25,
+            arrows=True, arrowsize=18,
             connectionstyle='arc3,rad=0.12',
         )
 
@@ -141,7 +147,7 @@ def draw_graph(ax, start=None, end=None, shortest_path=None, shortest_distance=N
 
     nx.draw_networkx_edge_labels(
         G, POS, ax=ax, edge_labels=dedup,
-        font_size=5, font_color=TEXT_MUTED, label_pos=0.3,
+        font_size=5, font_color=BG_DARK, label_pos=0.3,
     )
     if path_labels:
         nx.draw_networkx_edge_labels(
@@ -183,7 +189,7 @@ def draw_graph(ax, start=None, end=None, shortest_path=None, shortest_distance=N
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("Graph Rute Surabaya — Dijkstra")
+        self.title("Shortest Path Dijkstra Algorithm - Central Surabaya Road Network")
         self.configure(bg=BG_DARK)
         self.state('zoomed')   # mulai maximized
 
