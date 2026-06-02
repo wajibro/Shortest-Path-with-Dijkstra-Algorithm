@@ -34,7 +34,7 @@ EDGE_PATH     = "#4f9eff"
 # ─────────────────────────────────────────────
 #  LOAD DATA & BUILD GRAPH
 # ─────────────────────────────────────────────
-FILE_PATH = "src/Dataset_Graph_Surabaya-3.xlsx"
+FILE_PATH = "src/Dataset_Graph_Surabaya.xlsx"
 
 try:
     df = pd.read_excel(FILE_PATH)
