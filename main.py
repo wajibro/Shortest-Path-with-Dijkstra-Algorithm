@@ -210,8 +210,8 @@ class App(tk.Tk):
 
         # Judul panel
         tk.Label(
-            panel, text="🗺  NAVIGASI", bg=BG_PANEL, fg=ACCENT,
-            font=("Courier New", 13, "bold"), pady=18,
+            panel, text="🗺  Central Surabaya Road Network", bg=BG_PANEL, fg=ACCENT,
+            font=("Courier New", 10, "bold"), pady=18,
         ).grid(row=0, column=0, sticky="ew")
 
         self._divider(panel, 1)

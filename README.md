@@ -1,4 +1,4 @@
-# 🗺️ Shortest Path with Dijkstra Algorithm - Surabaya Route Graph
+# 🗺️ Shortest Path with Dijkstra Algorithm - Central Surabaya Road Network
 
 Aplikasi desktop interaktif untuk visualisasi graf rute kota Surabaya dan pencarian jalur terpendek menggunakan algoritma Dijkstra. Dibangun dengan Python, Tkinter, NetworkX, dan Matplotlib.
 
