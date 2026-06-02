@@ -171,7 +171,7 @@ def draw_graph(ax, start=None, end=None, shortest_path=None, shortest_distance=N
                  f"Total: {shortest_distance:.1f} km   |   "
                  f"{len(shortest_path)} titik")
     else:
-        title = "Directed Graph Rute Surabaya (Bolak-Balik)"
+        title = "Central Surabaya Road Network"
 
     ax.set_title(title, color=TEXT_PRIMARY, fontsize=10, fontweight='bold', pad=10)
     ax.axis('off')
@@ -210,7 +210,7 @@ class App(tk.Tk):
 
         # Judul panel
         tk.Label(
-            panel, text="🗺 Central Surabaya Road Network", bg=BG_PANEL, fg=ACCENT,
+            panel, text="🗺 Panel Navigasi", bg=BG_PANEL, fg=ACCENT,
             font=("Courier New", 10, "bold"), pady=18,
         ).grid(row=0, column=0, sticky="ew")
 
