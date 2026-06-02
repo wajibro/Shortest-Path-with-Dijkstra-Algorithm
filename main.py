@@ -238,16 +238,16 @@ class App(tk.Tk):
                  font=("Courier New", 8, "bold")).grid(row=1, column=1, sticky="e")
 
         # Lokasi awal
-        self._label(panel, 3, "📍  Lokasi Awal")
+        self._label(panel, 3, "Lokasi Awal")
         self.cb_start = self._combobox(panel, 4)
 
         # Lokasi tujuan
-        self._label(panel, 5, "🏁  Tujuan")
+        self._label(panel, 5, "Tujuan")
         self.cb_end = self._combobox(panel, 6)
 
         # Tombol cari
         btn_find = tk.Button(
-            panel, text="🔍  CARI RUTE TERPENDEK",
+            panel, text="CARI RUTE TERPENDEK",
             bg=ACCENT, fg=BG_DARK, font=("Courier New", 10, "bold"),
             activebackground="#3a8aee", activeforeground=BG_DARK,
             relief="flat", cursor="hand2", pady=10,
@@ -257,7 +257,7 @@ class App(tk.Tk):
 
         # Tombol reset
         btn_reset = tk.Button(
-            panel, text="↺  RESET",
+            panel, text="RESET",
             bg=BG_CARD, fg=TEXT_MUTED, font=("Courier New", 9),
             activebackground=BORDER, activeforeground=TEXT_PRIMARY,
             relief="flat", cursor="hand2", pady=7,
@@ -269,7 +269,7 @@ class App(tk.Tk):
 
         # Hasil rute
         tk.Label(
-            panel, text="📋  HASIL RUTE", bg=BG_PANEL, fg=ACCENT,
+            panel, text="HASIL RUTE", bg=BG_PANEL, fg=ACCENT,
             font=("Courier New", 10, "bold"), pady=10,
         ).grid(row=10, column=0, sticky="w", padx=14)
 
@@ -294,7 +294,7 @@ class App(tk.Tk):
 
         # Tombol simpan
         btn_save = tk.Button(
-            panel, text="💾  SIMPAN GAMBAR",
+            panel, text="SIMPAN GAMBAR",
             bg=BG_CARD, fg=ACCENT2, font=("Courier New", 9),
             activebackground=BORDER, activeforeground=ACCENT2,
             relief="flat", cursor="hand2", pady=7,
