@@ -99,14 +99,14 @@ def draw_graph(ax, start=None, end=None, shortest_path=None, shortest_distance=N
     if path_edges:
         nx.draw_networkx_edges(
             G, POS, ax=ax, edgelist=path_edges,
-            edge_color=BORDER, width=5.0,
+            edge_color=BORDER, width=3.0,
             arrows=True, arrowsize=18,
             connectionstyle='arc3,rad=0.12',
         )
         # Kedua: edge berwarna di atasnya
         nx.draw_networkx_edges(
             G, POS, ax=ax, edgelist=path_edges,
-            edge_color=EDGE_PATH, width=3.0,
+            edge_color=EDGE_PATH, width=2.0,
             arrows=True, arrowsize=18,
             connectionstyle='arc3,rad=0.12',
         )
